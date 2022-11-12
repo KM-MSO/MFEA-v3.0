@@ -1,0 +1,19 @@
+//Filename
+idpc_<number of nodes>x<number of domain>x<number of edges>.idpc
+
+//Data
+First line of a file constains two intergers N and D, which are number of nodes and number of domains, respectively.
+Second line contains two integers s and t, which are the source node and terminal node.
+Every next line contains four integers u, v, w, d, represents an edge (u,v) has weight w and belong to domain d.
+
+//Example
+idpc_4x3x6.idpc
+
+4 3
+1 4
+1 2 1 1
+1 3 4 2
+2 3 1 3
+2 4 3 2
+3 2 2 2
+3 4 1 1

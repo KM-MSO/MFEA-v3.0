@@ -1,0 +1,1 @@
+from IDPC_EDU import IDPC_EDU_benchmark
