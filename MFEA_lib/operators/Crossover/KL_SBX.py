@@ -9,10 +9,9 @@ class KL_SBXCrossover(AbstractCrossover):
     '''
     pa, pb in [0, 1]^n
     '''
-    def __init__(self, nc = 2, k = 1, conf_thres= 0.6, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, nc = 2, u = 0.01, conf_thres= 0.6):
         self.nc = nc
-        self.k = k
+        self.u = u
         self.conf_thres = conf_thres
     
     def getInforTasks(self, IndClass: Type[Individual], tasks: List[AbstractTask], seed=None):
@@ -22,12 +21,11 @@ class KL_SBXCrossover(AbstractCrossover):
 
     @staticmethod
     @jit(nopython= True)
-    def _updateProb(prob, k, dim_uss, nb_tasks, mean, std):
+    def _updateProb(prob, u, dim_uss, nb_tasks, mean, std):
         for i in range(nb_tasks):
             for j in range(nb_tasks):
                 kl = np.log((std[i] + 1e-50)/(std[j] + 1e-50)) + (std[j] ** 2 + (mean[j] - mean[i]) ** 2)/(2 * std[i] ** 2 + 1e-50) - 1/2
-                # prob[i][j] = 1/(1 + kl/k)
-                prob[i][j] = np.exp(-kl/k)
+                prob[i][j] = np.exp(-u * kl)
 
         return np.clip(prob, 1/dim_uss, 1)
 
@@ -37,12 +35,11 @@ class KL_SBXCrossover(AbstractCrossover):
         for idx_subPop in range(self.nb_tasks):
             mean[idx_subPop] = population[idx_subPop].__meanInds__
             std[idx_subPop] = population[idx_subPop].__stdInds__
-
-        self.prob = self.__class__._updateProb(self.prob, self.k, self.dim_uss, self.nb_tasks, mean, std)
+        self.prob = self.__class__._updateProb(self.prob, self.u, self.dim_uss, self.nb_tasks, mean, std)
 
     @staticmethod
     @jit(nopython = True)
-    def _crossover(gene_pa, gene_pb, swap, conf_thres, dim_uss, nc, pcd, gene_p_of_oa, gene_p_of_ob):
+    def _crossover(gene_pa, gene_pb, conf_thres, dim_uss, nc, pcd, gene_p_of_oa, gene_p_of_ob):
         u = np.random.rand(dim_uss)
         beta = np.where(u < 0.5, (2*u)**(1/(nc +1)), (2 * (1 - u))**(-1 / (nc + 1)))
 
@@ -62,9 +59,6 @@ class KL_SBXCrossover(AbstractCrossover):
         gene_ob = np.where(idx_crossover, np.clip(0.5*((1 - beta) * gene_pa + (1 + beta) * gene_pb), 0, 1), gene_p_of_ob)
 
         #swap
-        # if swap:
-            # idx_swap = np.where(np.logical_and(np.random.rand(dim_uss) < 0.5, idx_crossover))[0]
-            # idx_swap = np.where(np.random.rand(dim_uss) < 0.5)[0]
         idx_swap = np.where(np.logical_and(np.random.rand(dim_uss) < 0.5, pcd >= conf_thres))[0]
         gene_oa[idx_swap], gene_ob[idx_swap] = gene_ob[idx_swap], gene_oa[idx_swap]
     
@@ -86,10 +80,8 @@ class KL_SBXCrossover(AbstractCrossover):
 
         # skf_pa == skf_pb => skf_oa == skf_ob
         # skf_pa != skf_pb => skf_oa == skf_ob || skf_oa != skf_ob
-        gene_oa, gene_ob = self.__class__._crossover(pa.genes, pb.genes, skf_oa == skf_ob, self.conf_thres, self.dim_uss, self.nc, self.prob[pa.skill_factor][pb.skill_factor], p_of_oa.genes, p_of_ob.genes)
-        # gene_oa, gene_ob = self.__class__._crossover(pa.genes, pb.genes, 
-        #     ((pa.skill_factor == pb.skill_factor) + (skf_oa == skf_ob))/2, self.dim_uss, self.nc, self.prob[pa.skill_factor][pb.skill_factor], p_of_oa.genes, p_of_ob.genes)
-
+        gene_oa, gene_ob = self.__class__._crossover(pa.genes, pb.genes, self.conf_thres, self.dim_uss, self.nc, self.prob[pa.skill_factor][pb.skill_factor], p_of_oa.genes, p_of_ob.genes)
+        
         oa = self.IndClass(gene_oa)
         ob = self.IndClass(gene_ob)
 
