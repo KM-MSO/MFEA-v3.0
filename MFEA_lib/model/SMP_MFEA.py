@@ -124,7 +124,7 @@ class model(AbstractModel.model):
             return fig
 
     def fit(self, nb_generations: int, nb_inds_each_task: int, nb_inds_min = None,
-        lr = 1, p_const_intra = 0.5, prob_search = 0.5, lc_nums = 100,
+        lr = 1, p_const_intra = 0.5, prob_search = 0.5,
         nb_epochs_stop = 50, 
         evaluate_initial_skillFactor = False,
         *args, **kwargs):
@@ -276,11 +276,30 @@ class model(AbstractModel.model):
                     turn_eval += 2
 
                     # Calculate the maximum improvement percetage
+                    
+
+                    # case 0
                     Delta1 = (pa.fcost - oa.fcost) / (pa.fcost ** 2 + 1e-50)
                     Delta2 = (pa.fcost - ob.fcost) / (pa.fcost ** 2 + 1e-50)
 
                     Delta[skf_pa][skf_pb] += max([Delta1, 0])**2
                     Delta[skf_pa][skf_pb] += max([Delta2, 0])**2
+
+                    # # case 1
+                    # Delta1 = (pa.fcost - oa.fcost) / (pa.fcost ** 2 + 1e-50)
+                    # Delta2 = (pa.fcost - ob.fcost) / (pa.fcost ** 2 + 1e-50)
+                    # Delta[skf_pa][skf_pb] += max([Delta1, Delta2, 0])
+
+                    # # case 2
+                    # Delta1 = (pa.fcost - oa.fcost) / (pa.fcost ** 2 + 1e-50)
+                    # Delta2 = (pa.fcost - ob.fcost) / (pa.fcost ** 2 + 1e-50)
+                    # Delta[skf_pa][skf_pb] += max([Delta1, 0])
+                    # Delta[skf_pa][skf_pb] += max([Delta2, 0])
+
+                    # # case 3
+                    # Delta1 = (pa.fcost - oa.fcost) / (pa.fcost ** 2 + 1e-50)
+                    # Delta2 = (pa.fcost - ob.fcost) / (pa.fcost ** 2 + 1e-50)
+                    # Delta[skf_pa][skf_pb] += max([Delta1, Delta2, 0]) ** 2
 
                     # update smp
                     if Delta1 > 0 or Delta2 > 0:
@@ -324,18 +343,6 @@ class model(AbstractModel.model):
             Delta:List[List[float]] = np.zeros((len(self.tasks), len(self.tasks) + 1)).tolist()
             count_Delta: List[List[float]] = np.zeros((len(self.tasks), len(self.tasks) + 1)).tolist()
 
-            # '''local search'''
-            # if epoch % lc_nums == 0: 
-            #     for skf in range(len(self.tasks)): 
-            #         ls = Search.LocalSearch_DSCG()
-            #         ls.getInforTasks(self.IndClass, self.tasks, seed= self.seed)
-            #         ind = population[skf].getSolveInd()
-            #         evals, new_ind = ls.search(ind, fes = 2000)
-            #         eval_k[skf] += evals
-            #         if new_ind.fcost < ind.fcost : 
-            #             population[skf].ls_inds[0].genes= new_ind.genes 
-            #             population[skf].ls_inds[0].fcost = new_ind.fcost
-            #             population.update_rank()  
             self.time_parts[3] += time.time() - s_time
             s_time = time.time()
 

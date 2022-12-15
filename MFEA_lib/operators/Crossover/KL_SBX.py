@@ -25,7 +25,7 @@ class KL_SBXCrossover(AbstractCrossover):
         for i in range(nb_tasks):
             for j in range(nb_tasks):
                 kl = np.log((std[i] + 1e-50)/(std[j] + 1e-50)) + (std[j] ** 2 + (mean[j] - mean[i]) ** 2)/(2 * std[i] ** 2 + 1e-50) - 1/2
-                prob[i][j] = np.exp(-u * kl)
+                prob[i][j] = np.exp(-kl * u)
 
         return np.clip(prob, 1/dim_uss, 1)
 
@@ -81,7 +81,6 @@ class KL_SBXCrossover(AbstractCrossover):
         # skf_pa == skf_pb => skf_oa == skf_ob
         # skf_pa != skf_pb => skf_oa == skf_ob || skf_oa != skf_ob
         gene_oa, gene_ob = self.__class__._crossover(pa.genes, pb.genes, self.conf_thres, self.dim_uss, self.nc, self.prob[pa.skill_factor][pb.skill_factor], p_of_oa.genes, p_of_ob.genes)
-        
         oa = self.IndClass(gene_oa)
         ob = self.IndClass(gene_ob)
 
