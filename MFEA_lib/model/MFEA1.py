@@ -13,7 +13,7 @@ class model(AbstractModel.model):
         *args, **kwargs):
         return super().compile(IndClass, tasks, crossover, mutation, selection, *args, **kwargs)
 
-    def fit(self,nb_generations, nb_inds_each_task: int, rmp = 0.3, evaluate_initial_skillFactor = False, *args, **kwargs):
+    def fit(self,nb_generations, nb_inds_each_task: int, rmp = 0.3,mutation_rate= 0.1, evaluate_initial_skillFactor = False, *args, **kwargs):
         super().fit(*args, **kwargs)
 
         # initialize population
@@ -61,8 +61,9 @@ class model(AbstractModel.model):
                     ob, _ = self.crossover(pb, pb1, pb.skill_factor, pb.skill_factor) 
                 
                 # mutate
-                oa = self.mutation(oa, return_newInd= False)
-                ob = self.mutation(ob, return_newInd= False)    
+                if np.random.rand() < mutation_rate:
+                    oa = self.mutation(oa, return_newInd= False)
+                    ob = self.mutation(ob, return_newInd= False)    
 
                 # eval and append # addIndividual already has eval  
                 offspring.__addIndividual__(oa) 
