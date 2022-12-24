@@ -2,6 +2,7 @@ import numpy as np
 import os
 import pandas as pd
 from . import loadModel
+from MFEA_lib.model import AbstractModel
 
 class CompareResultBenchmark:
     '''
@@ -199,7 +200,10 @@ class CompareResultBenchmark:
                 except:
                     # print('koco')
                     pass
-                algo_ls_model[idx_algo][idx_benchmark] = model 
+                # algo_ls_model[idx_algo][idx_benchmark] = model 
+                tmp_model = AbstractModel.model()
+                tmp_model.history_cost = np.copy(model.history_cost)
+                algo_ls_model[idx_algo][idx_benchmark] = tmp_model
                 # except: 
                 #     print(f"Cannot load Model: {os.path.join(path_model, model_name)}")    
                 #     return

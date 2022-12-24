@@ -215,7 +215,8 @@ class MultiTimeModel:
             print(saveModel(self, save_path))
 
 
-def saveModel(model: MultiTimeModel, PATH: str, remove_tasks=True):
+
+def saveModel(model: MultiTimeModel, PATH: str, remove_tasks=True, total_time = None ):
     '''
     `.mso`
     '''
@@ -240,23 +241,35 @@ def saveModel(model: MultiTimeModel, PATH: str, remove_tasks=True):
 
     tasks = model.tasks 
 
-    if remove_tasks is True:
-        model.tasks = None
-        model.compile_kwargs['tasks'] = None
-        for submodel in model.ls_model:
-            submodel.tasks = None
-            submodel.last_pop.ls_tasks = None
-            for subpop in submodel.last_pop:
-                subpop.task = None
-            if 'attr_tasks' in submodel.kwargs.keys():
-                for attribute in submodel.kwargs['attr_tasks']:
-                    # setattr(submodel, getattr(subm, name), None)
-                    setattr(getattr(submodel, attribute), 'tasks', None)
-                    pass
-            else:
-                submodel.crossover.tasks = None
-                submodel.mutation.tasks = None
+    if total_time is not None: 
+        model.total_time = total_time 
 
+    if remove_tasks is True:
+        if hasattr(model, "tasks"):
+            model.tasks = None
+        if hasattr(model, "compile_kwargs"):
+            model.compile_kwargs['tasks'] = None
+        for submodel in model.ls_model:
+            if hasattr(submodel, "tasks"):
+                submodel.tasks = None
+            if hasattr(submodel, "last_pop"):
+                submodel.last_pop.ls_tasks = None
+            if hasattr(submodel, "last_pop"):
+                for subpop in submodel.last_pop:
+                    subpop.task = None
+            if hasattr(submodel, "kwargs"):
+                if 'attr_tasks' in submodel.kwargs.keys():
+                    for attribute in submodel.kwargs['attr_tasks']:
+                        # setattr(submodel, getattr(subm, name), None)
+                        setattr(getattr(submodel, attribute), 'tasks', None)
+                        pass
+                else:
+                    submodel.crossover.tasks = None
+                    submodel.mutation.tasks = None
+
+    f = open(PATH, 'wb')
+    pickle.dump(model, f)
+    f.close()
     try:
         f = open(PATH, 'wb')
         pickle.dump(model, f)
@@ -267,13 +280,47 @@ def saveModel(model: MultiTimeModel, PATH: str, remove_tasks=True):
         model.__class__ = cls.__class__(cls.__name__, (cls, model.model), {})
 
         if remove_tasks is True:
-            model.tasks = tasks 
-            model.compile_kwargs['tasks'] = None
+            if hasattr(model, "tasks"):
+                model.tasks = tasks
+            if hasattr(model, "compile_kwargs"): 
+                model.compile_kwargs['tasks'] = None
             for submodel in model.ls_model:
+                if hasattr(submodel, "tasks"):
+                    submodel.tasks = tasks
+                if hasattr(submodel, "last_pop"):
+                    if hasattr(submodel.last_pop, "ls_tasks"):
+                        submodel.last_pop.ls_tasks = tasks 
+                    for idx, subpop in enumerate(submodel.last_pop):
+                        if hasattr(subpop, "task"):
+                            subpop.task = tasks[idx]
+                if hasattr(submodel, "kwargs"):
+                    if 'attr_tasks' in submodel.kwargs.keys():
+                        for attribute in submodel.kwargs['attr_tasks']:
+                            # setattr(submodel, getattr(subm, name), None)
+                            setattr(getattr(submodel, attribute), 'tasks', tasks)
+                            pass
+                    else:
+                        submodel.crossover.tasks = tasks
+                        submodel.mutation.tasks = tasks 
+        return 'Cannot Saved'
+
+    
+    if remove_tasks is True:
+        if hasattr(model, "tasks"):
+            model.tasks = tasks
+        if hasattr(model, "compile_kwargs"): 
+            model.compile_kwargs['tasks'] = None
+        for submodel in model.ls_model:
+            if hasattr(submodel, "tasks"):
                 submodel.tasks = tasks
-                submodel.last_pop.ls_tasks = tasks 
+            if hasattr(submodel, "last_pop"):
+                if hasattr(submodel.last_pop, "ls_tasks"):
+                    submodel.last_pop.ls_tasks = tasks 
+                
                 for idx, subpop in enumerate(submodel.last_pop):
-                    subpop.task = tasks[idx]
+                    if hasattr(subpop, "task"):
+                        subpop.task = tasks[idx]
+            if hasattr(submodel, "kwargs"):
                 if 'attr_tasks' in submodel.kwargs.keys():
                     for attribute in submodel.kwargs['attr_tasks']:
                         # setattr(submodel, getattr(subm, name), None)
@@ -282,26 +329,6 @@ def saveModel(model: MultiTimeModel, PATH: str, remove_tasks=True):
                 else:
                     submodel.crossover.tasks = tasks
                     submodel.mutation.tasks = tasks 
-        return 'Cannot Saved'
-
-    
-    if remove_tasks is True:
-        model.tasks = tasks 
-        model.compile_kwargs['tasks'] = None
-        for submodel in model.ls_model:
-            submodel.tasks = tasks
-            submodel.last_pop.ls_tasks = tasks 
-            for idx, subpop in enumerate(submodel.last_pop):
-                subpop.task = tasks[idx]
-            if 'attr_tasks' in submodel.kwargs.keys():
-                for attribute in submodel.kwargs['attr_tasks']:
-                    # setattr(submodel, getattr(subm, name), None)
-                    setattr(getattr(submodel, attribute), 'tasks', tasks)
-                    pass
-            else:
-                submodel.crossover.tasks = tasks
-                submodel.mutation.tasks = tasks 
-
 
     cls = model.__class__
     model.__class__ = cls.__class__(cls.__name__, (cls, model.model), {})
