@@ -19,6 +19,7 @@ class CompareModel():
                     label[idx] = self.models[idx].name
 
         self.label = label
+        self.ls_marker = ["X", "D", "*", "o", "^", "v", "<", ">", "s", "P"]
 
     def render(self, shape: tuple = None, min_cost=0, nb_generations: int = None, step=1, figsize: Tuple[int, int] = None, dpi=200, yscale: str = None, re=False, label_shape=None, label_loc=None):
         assert np.all([len(self.models[0].tasks) == len(m.tasks)
@@ -73,7 +74,8 @@ class CompareModel():
                         0
                     ),
                     label=self.label[idx_model],
-                    marker=marker,
+                    
+                    marker=marker if marker is None else self.ls_marker[idx_model],
                 )
                 # plt.legend()
                 if yscale is not None:

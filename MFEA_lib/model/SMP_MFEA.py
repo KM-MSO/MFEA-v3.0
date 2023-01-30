@@ -73,8 +73,9 @@ class model(AbstractModel.model):
         self.search.getInforTasks(IndClass, tasks, seed = self.seed)
         self.time_parts = [0] * 20
 
-    def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_shape= None, label_loc= None):
-        
+    def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_shape= None, label_loc= None,grid = True, name_tasks= False):
+        self.colors = ["#0000CD","#FF0000","#FF8C00","#FFFF00","#7CFC00","#228B22","#00CED1","#8A2BE2","#FF00FF","#FFF8DC","#B0C4DE","#800000"]
+
         if title is None:
             title = self.__class__.__name__
         if shape is None:
@@ -102,19 +103,37 @@ class model(AbstractModel.model):
         y_lim = (-0.1, 1.1)
 
         for idx_task, task in enumerate(self.tasks):
-            fig.axes[idx_task].stackplot(
+            stacks = fig.axes[idx_task].stackplot(
                 np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])),
                 [his_smp[
                     np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])), 
                     idx_task, t] for t in range(len(self.tasks) + 1)],
-                labels = ['Task' + str(i + 1) for i in range(len(self.tasks))] + ["mutation"]
+                labels = ['Task' + str(i + 1) for i in range(len(self.tasks))] + ["mutation"],
+                colors = [self.colors[i] for i in range(len(self.tasks)+1)],
             )
+            # hatches = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*','/o', '\\|', '|*', '-\\', '+o', 'x*', 'o-', 'O|', 'O.', '*-']
+            # for index, stack in enumerate(stacks):
+            #     if index >= len(hatches):
+            #         break 
+            #     # stack.set_edgecolor("b") 
+            #     stack.set_hatch(hatches[index]) 
+            #     # print(stack.get_hatch())
+
             # plt.legend()
-            fig.axes[idx_task].set_title('Task ' + str(idx_task + 1) +": " + task.name)
+            if name_tasks : 
+                fig.axes[idx_task].set_title('Task ' + str(idx_task + 1) +": " + task.name)
+            else: 
+                fig.axes[idx_task].set_title('Task ' + str(idx_task + 1))
+
             fig.axes[idx_task].set_xlabel('Generations')
             fig.axes[idx_task].set_ylabel("SMP")
             fig.axes[idx_task].set_ylim(bottom = y_lim[0], top = y_lim[1])
+            if grid: 
+                fig.axes[idx_task].grid() 
 
+        for i in range(shape[0] * shape[1]  - len(self.tasks)):
+            fig.delaxes(fig.axes[-1])
+        print(len(fig.axes))
 
         lines, labels = fig.axes[0].get_legend_handles_labels()
         fig.tight_layout()
