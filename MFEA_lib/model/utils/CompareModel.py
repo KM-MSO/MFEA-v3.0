@@ -21,7 +21,7 @@ class CompareModel():
         self.label = label
         self.ls_marker = ["X", "D", "*", "o", "^", "v", "<", ">", "s", "P"]
 
-    def render(self, shape: tuple = None, min_cost=0, nb_generations: int = None, step=1, figsize: Tuple[int, int] = None, dpi=200, yscale: str = None, re=False, label_shape=None, label_loc=None):
+    def render(self, shape: tuple = None, min_cost=0, nb_generations: int = None, step=1, figsize: Tuple[int, int] = None, dpi=200, yscale: str = None, re=False, label_shape=None, label_loc=None, grid = True, title= None, showname= True):
         assert np.all([len(self.models[0].tasks) == len(m.tasks)
                       for m in self.models])
         nb_tasks = len(self.models[0].tasks)
@@ -52,7 +52,11 @@ class CompareModel():
             figsize = (shape[1] * 6, shape[0] * 5)
 
         fig = plt.figure(figsize=figsize, dpi=dpi)
-        fig.suptitle("Compare Models\n", size=15)
+        if title is None:
+            fig.suptitle("Compare Models\n", size=15)
+        else: 
+            # fig.suptitle("\n", size=15)
+            pass
         fig.set_facecolor("white")
         fig.subplots(shape[0], shape[1])
 
@@ -80,9 +84,14 @@ class CompareModel():
                 # plt.legend()
                 if yscale is not None:
                     fig.axes[idx_task].set_yscale(yscale)
-            fig.axes[idx_task].set_title(task.name)
+            if showname:
+                fig.axes[idx_task].set_title(task.name)
+            else: 
+                fig.axes[idx_task].set_title("Task " + str(idx_task + 1))
             fig.axes[idx_task].set_xlabel("Generations")
-            fig.axes[idx_task].set_ylabel("Cost")
+            fig.axes[idx_task].set_ylabel("Log scale objective value")
+            if grid: 
+                fig.axes[idx_task].grid()
 
         for idx_blank_fig in range(idx_task + 1, shape[0] * shape[1]):
             fig.delaxes(fig.axes[idx_task + 1])

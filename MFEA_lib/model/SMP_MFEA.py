@@ -103,6 +103,7 @@ class model(AbstractModel.model):
         y_lim = (-0.1, 1.1)
 
         for idx_task, task in enumerate(self.tasks):
+
             stacks = fig.axes[idx_task].stackplot(
                 np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])),
                 [his_smp[
@@ -111,6 +112,26 @@ class model(AbstractModel.model):
                 labels = ['Task' + str(i + 1) for i in range(len(self.tasks))] + ["mutation"],
                 colors = [self.colors[i] for i in range(len(self.tasks)+1)],
             )
+            if idx_task == 9: 
+                # idx_task += 1 
+                stacks = fig.axes[idx_task+1].stackplot(
+                    np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])),
+                    [his_smp[
+                        np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])), 
+                        idx_task, t] for t in range(len(self.tasks) + 1)],
+                    labels = ['Task' + str(i + 1) for i in range(len(self.tasks))] + ["mutation"],
+                    colors = [self.colors[i] for i in range(len(self.tasks)+1)],
+                )
+                if name_tasks : 
+                    fig.axes[idx_task+1].set_title('Task ' + str(idx_task + 1) +": " + task.name)
+                else: 
+                    fig.axes[idx_task+1].set_title('Task ' + str(idx_task + 1))
+
+                fig.axes[idx_task+1].set_xlabel('Generations')
+                fig.axes[idx_task+1].set_ylabel("SMP")
+                fig.axes[idx_task+1].set_ylim(bottom = y_lim[0], top = y_lim[1])
+                if grid: 
+                    fig.axes[idx_task+1].grid() 
             # hatches = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*','/o', '\\|', '|*', '-\\', '+o', 'x*', 'o-', 'O|', 'O.', '*-']
             # for index, stack in enumerate(stacks):
             #     if index >= len(hatches):
@@ -130,14 +151,22 @@ class model(AbstractModel.model):
             fig.axes[idx_task].set_ylim(bottom = y_lim[0], top = y_lim[1])
             if grid: 
                 fig.axes[idx_task].grid() 
-
-        for i in range(shape[0] * shape[1]  - len(self.tasks)):
-            fig.delaxes(fig.axes[-1])
+        fig.delaxes(fig.axes[-1])
+        fig.delaxes(fig.axes[-2])
+        # fig.axes.insert(-2, fig.axes[-1])
+        # fig.delaxes(fig.axes[-2])
+        # fig.delaxes(fig.axes[-3])
+        # fig.delaxes(fig.axes[-2])
+        
+        # for i in range(shape[0] * shape[1]  - len(self.tasks)):
+        #     # if fig.axes[i].line
+        #     fig.delaxes(fig.axes[-1])
+    
         print(len(fig.axes))
 
         lines, labels = fig.axes[0].get_legend_handles_labels()
         fig.tight_layout()
-        fig.legend(lines, labels, loc = label_loc, ncol = label_shape[1])
+        fig.legend(lines, labels, loc = label_loc, ncol = 5,)
         plt.show()
         if re_fig:
             return fig
