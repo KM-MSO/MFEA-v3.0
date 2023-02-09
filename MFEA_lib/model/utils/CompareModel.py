@@ -21,7 +21,11 @@ class CompareModel():
         self.label = label
         self.ls_marker = ["X", "D", "*", "o", "^", "v", "<", ">", "s", "P"]
 
-    def render(self, shape: tuple = None, min_cost=0, nb_generations: int = None, step=1, figsize: Tuple[int, int] = None, dpi=200, yscale: str = None, re=False, label_shape=None, label_loc=None, grid = True, title= None, showname= True):
+    def render(self, shape: tuple = None, min_cost=0, nb_generations: int = None, step=1, figsize: Tuple[int, int] = None, dpi=200, 
+               yscale: str = None, re=False, label_shape=None, label_loc=None, grid = True, title= None, showname= True, 
+               title_size= None, label_size_x=None, label_size_y= None, pad=None, x_tick_size=None, y_tick_size=None,
+               bbox_to_anchor= None, loc_legend= None,borderaxespad= None,handletextpad= 0.8, legend_size=14, 
+               scatter_size=200):
         assert np.all([len(self.models[0].tasks) == len(m.tasks)
                       for m in self.models])
         nb_tasks = len(self.models[0].tasks)
@@ -78,26 +82,53 @@ class CompareModel():
                         0
                     ),
                     label=self.label[idx_model],
-                    
+                    markersize= scatter_size,
                     marker=marker if marker is None else self.ls_marker[idx_model],
                 )
                 # plt.legend()
                 if yscale is not None:
                     fig.axes[idx_task].set_yscale(yscale)
             if showname:
-                fig.axes[idx_task].set_title(task.name)
+                if title_size is not None:
+                    
+                    # fig.axes[idx_task].set_title(task.name, fontdict= {'fontsize': title_size})
+                    fig.axes[idx_task].set_title(task.name, fontsize=title_size)
+                else:
+                    fig.axes[idx_task].set_title(task.name)
             else: 
-                fig.axes[idx_task].set_title("Task " + str(idx_task + 1))
-            fig.axes[idx_task].set_xlabel("Generations")
-            fig.axes[idx_task].set_ylabel("Log scale objective value")
+                if title_size is not None:
+                    # fig.axes[idx_task].set_title("Task " + str(idx_task + 1), fontdict= {'fontsize': title_size})
+                    fig.axes[idx_task].set_title("Task " + str(idx_task + 1), fontsize= title_size)
+                else: 
+                    fig.axes[idx_task].set_title("Task " + str(idx_task + 1))
+            if label_size_x is not None: 
+                fig.axes[idx_task].set_xlabel("Generations", fontsize=label_size_x)
+            else:
+                fig.axes[idx_task].set_xlabel("Generations")
+            if label_size_y is not None: 
+                fig.axes[idx_task].set_ylabel("Log scale objective value", fontsize= label_size_y)
+            else:
+                fig.axes[idx_task].set_ylabel("Log scale objective value")
             if grid: 
                 fig.axes[idx_task].grid()
-
+            if x_tick_size is not None:
+                for tick in fig.axes[idx_task].xaxis.get_major_ticks():
+                    tick.label.set_fontsize(x_tick_size)
+            if y_tick_size is not None: 
+                for tick in fig.axes[idx_task].yaxis.get_major_ticks():
+                    tick.label.set_fontsize(y_tick_size)
         for idx_blank_fig in range(idx_task + 1, shape[0] * shape[1]):
             fig.delaxes(fig.axes[idx_task + 1])
 
         lines, labels = fig.axes[-1].get_legend_handles_labels()
-        fig.legend(lines, labels, loc=label_loc, ncol=label_shape[1])
+        if bbox_to_anchor is not None: 
+            fig.legend(lines, labels,fontsize= legend_size, handletextpad=handletextpad, loc=label_loc, ncol=label_shape[1], bbox_to_anchor=bbox_to_anchor, borderaxespad=borderaxespad)
+        else:
+            fig.legend(lines, labels,fontsize=legend_size, handletextpad= handletextpad, loc=label_loc, ncol=label_shape[1])
+        if pad is not None: 
+            fig.tight_layout(pad) 
+        else:
+            fig.tight_layout()
         plt.show()
         if re:
             return fig

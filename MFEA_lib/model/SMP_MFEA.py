@@ -73,7 +73,12 @@ class model(AbstractModel.model):
         self.search.getInforTasks(IndClass, tasks, seed = self.seed)
         self.time_parts = [0] * 20
 
-    def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_shape= None, label_loc= None,grid = True, name_tasks= False):
+    def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, 
+                label_shape= None, label_loc= None,grid = True, name_tasks= False,
+                title_size= None, label_size_x=None, label_size_y= None, pad=None, x_tick_size=None, y_tick_size=None,
+                bbox_to_anchor= None, loc_legend= None,borderaxespad= None,handletextpad= 0.8, legend_size=14, 
+                ncol= 11
+                ):
         self.colors = ["#0000CD","#FF0000","#FF8C00","#FFFF00","#7CFC00","#228B22","#00CED1","#8A2BE2","#FF00FF","#FFF8DC","#B0C4DE","#800000"]
 
         if title is None:
@@ -112,26 +117,27 @@ class model(AbstractModel.model):
                 labels = ['Task' + str(i + 1) for i in range(len(self.tasks))] + ["mutation"],
                 colors = [self.colors[i] for i in range(len(self.tasks)+1)],
             )
-            if idx_task == 9: 
-                # idx_task += 1 
-                stacks = fig.axes[idx_task+1].stackplot(
-                    np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])),
-                    [his_smp[
-                        np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])), 
-                        idx_task, t] for t in range(len(self.tasks) + 1)],
-                    labels = ['Task' + str(i + 1) for i in range(len(self.tasks))] + ["mutation"],
-                    colors = [self.colors[i] for i in range(len(self.tasks)+1)],
-                )
-                if name_tasks : 
-                    fig.axes[idx_task+1].set_title('Task ' + str(idx_task + 1) +": " + task.name)
-                else: 
-                    fig.axes[idx_task+1].set_title('Task ' + str(idx_task + 1))
+            # if idx_task == 9 and idx_task +1 <= shape[0] * shape[1] - 1: 
+            #     # idx_task += 1 
 
-                fig.axes[idx_task+1].set_xlabel('Generations')
-                fig.axes[idx_task+1].set_ylabel("SMP")
-                fig.axes[idx_task+1].set_ylim(bottom = y_lim[0], top = y_lim[1])
-                if grid: 
-                    fig.axes[idx_task+1].grid() 
+            #     stacks = fig.axes[idx_task+1].stackplot(
+            #         np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])),
+            #         [his_smp[
+            #             np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])), 
+            #             idx_task, t] for t in range(len(self.tasks) + 1)],
+            #         labels = ['Task' + str(i + 1) for i in range(len(self.tasks))] + ["mutation"],
+            #         colors = [self.colors[i] for i in range(len(self.tasks)+1)],
+            #     )
+            #     if name_tasks : 
+            #         fig.axes[idx_task+1].set_title('Task ' + str(idx_task + 1) +": " + task.name)
+            #     else: 
+            #         fig.axes[idx_task+1].set_title('Task ' + str(idx_task + 1))
+
+            #     fig.axes[idx_task+1].set_xlabel('Generations')
+            #     fig.axes[idx_task+1].set_ylabel("SMP")
+            #     fig.axes[idx_task+1].set_ylim(bottom = y_lim[0], top = y_lim[1])
+            #     if grid: 
+            #         fig.axes[idx_task+1].grid() 
             # hatches = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*','/o', '\\|', '|*', '-\\', '+o', 'x*', 'o-', 'O|', 'O.', '*-']
             # for index, stack in enumerate(stacks):
             #     if index >= len(hatches):
@@ -142,17 +148,39 @@ class model(AbstractModel.model):
 
             # plt.legend()
             if name_tasks : 
-                fig.axes[idx_task].set_title('Task ' + str(idx_task + 1) +": " + task.name)
-            else: 
-                fig.axes[idx_task].set_title('Task ' + str(idx_task + 1))
+                if title_size is not None: 
+                    fig.axes[idx_task].set_title('Task ' + str(idx_task + 1) +": " + task.name, fontsize= title_size)
+                else: 
+                    fig.axes[idx_task].set_title('Task ' + str(idx_task + 1) +": " + task.name)
 
-            fig.axes[idx_task].set_xlabel('Generations')
-            fig.axes[idx_task].set_ylabel("SMP")
+            else:
+                if title_size is not None: 
+                    fig.axes[idx_task].set_title('Task ' + str(idx_task + 1), fontsize= title_size)
+                else: 
+                    fig.axes[idx_task].set_title('Task ' + str(idx_task + 1))
+
+            if label_size_x is not None:
+                fig.axes[idx_task].set_xlabel('Generations', fontsize= label_size_x)
+            else:
+                fig.axes[idx_task].set_xlabel('Generations')
+            
+            if label_size_y is not None: 
+                fig.axes[idx_task].set_ylabel("SMP", fontsize= label_size_y)
+            else: 
+                fig.axes[idx_task].set_ylabel("SMP")
+
+            if x_tick_size is not None: 
+                for tick in fig.axes[idx_task].xaxis.get_major_ticks(): 
+                    tick.label.set_fontsize(x_tick_size)
+            if y_tick_size is not None: 
+                for tick in fig.axes[idx_task].yaxis.get_major_ticks():
+                    tick.label.set_fontsize(y_tick_size) 
+                
             fig.axes[idx_task].set_ylim(bottom = y_lim[0], top = y_lim[1])
             if grid: 
                 fig.axes[idx_task].grid() 
-        fig.delaxes(fig.axes[-1])
-        fig.delaxes(fig.axes[-2])
+        # fig.delaxes(fig.axes[-1])
+        # fig.delaxes(fig.axes[-2])
         # fig.axes.insert(-2, fig.axes[-1])
         # fig.delaxes(fig.axes[-2])
         # fig.delaxes(fig.axes[-3])
@@ -165,8 +193,14 @@ class model(AbstractModel.model):
         print(len(fig.axes))
 
         lines, labels = fig.axes[0].get_legend_handles_labels()
-        fig.tight_layout()
-        fig.legend(lines, labels, loc = label_loc, ncol = 5,)
+        if bbox_to_anchor is not None: 
+            fig.legend(lines, labels, loc = label_loc, ncol = ncol,fontsize= legend_size, handletextpad= handletextpad, bbox_to_anchor=bbox_to_anchor, borderaxespad=borderaxespad)
+        else: 
+            fig.legend(lines, labels, loc = label_loc, ncol = ncol,fontsize= legend_size)
+        if pad is not None: 
+            fig.tight_layout(pad)
+        else:
+            fig.tight_layout()
         plt.show()
         if re_fig:
             return fig
