@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 from numba import jit
 
@@ -80,7 +81,7 @@ class model(AbstractModel.model):
                 ncol= 11
                 ):
         self.colors = ["#0000CD","#FF0000","#FF8C00","#FFFF00","#7CFC00","#228B22","#00CED1","#8A2BE2","#FF00FF","#FFF8DC","#B0C4DE","#800000"]
-
+        print(matplotlib.rcParams['pdf.fonttype'])
         if title is None:
             title = self.__class__.__name__
         if shape is None:

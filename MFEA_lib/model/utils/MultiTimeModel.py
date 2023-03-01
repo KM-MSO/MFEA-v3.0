@@ -21,31 +21,31 @@ def get_model_name(model: AbstractModel.model):
 
 
 class MultiTimeModel:
-    def __init__(self, model: AbstractModel, list_attri_avg: list = None,  name=None) -> None:
+    def __init__(self, model: AbstractModel = None, list_attri_avg: list = None,  name=None) -> None:
+        if model is not None:
+            self.model = model.model
 
-        self.model = model.model
+            if name is None and model is not None:
+                self.name = model.__name__
+            else:
+                self.name = name
 
-        if name is None:
-            self.name = model.__name__
-        else:
-            self.name = name
+            if list_attri_avg is None:
+                self.list_attri_avg = None
+            else:
+                self.list_attri_avg = list_attri_avg
 
-        if list_attri_avg is None:
-            self.list_attri_avg = None
-        else:
-            self.list_attri_avg = list_attri_avg
+            self.ls_model: List[AbstractModel.model] = []
+            self.ls_seed: List[int] = []
+            self.total_time = 0
 
-        self.ls_model: List[AbstractModel.model] = []
-        self.ls_seed: List[int] = []
-        self.total_time = 0
+            # add inherit
+            cls = self.__class__
+            self.__class__ = cls.__class__(cls.__name__, (cls, self.model), {})
 
-        # add inherit
-        cls = self.__class__
-        self.__class__ = cls.__class__(cls.__name__, (cls, self.model), {})
-
-        # status of model run
-        # self.status = 'NotRun' | 'Running' | 'Done'
-        self.status = 'NotRun'
+            # status of model run
+            # self.status = 'NotRun' | 'Running' | 'Done'
+            self.status = 'NotRun'
 
     def set_data(self, history_cost: np.ndarray):
         self.status = 'Done'

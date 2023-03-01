@@ -5,6 +5,7 @@ import os
 import pandas as pd
 from typing import List, Tuple
 from . import loadModel
+import matplotlib 
 
 class CompareModel():
     # TODO so sánh
@@ -26,6 +27,7 @@ class CompareModel():
                title_size= None, label_size_x=None, label_size_y= None, pad=None, x_tick_size=None, y_tick_size=None,
                bbox_to_anchor= None, loc_legend= None,borderaxespad= None,handletextpad= 0.8, legend_size=14, 
                scatter_size=200):
+        print(matplotlib.rcParams['pdf.fonttype']);
         assert np.all([len(self.models[0].tasks) == len(m.tasks)
                       for m in self.models])
         nb_tasks = len(self.models[0].tasks)

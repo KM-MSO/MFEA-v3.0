@@ -1,7 +1,0 @@
-Algorithms,Better,Equal,Worse,p-value
-S-MFEA vs EBS-GA,426,0,74,0
-S-MFEA vs LSA,347,0,153,0
-S-MFEA vs MaTGA,331,0,169,0.01
-S-MFEA vs sMFEA,500,0,0,0
-S-MFEA vs MTEA-AD,500,0,0,0
-S-MFEA vs SBS_GA,390,0,110,0
