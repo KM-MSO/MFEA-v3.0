@@ -221,7 +221,7 @@ class SubPopulation:
         raise ValueError(str(ind) + "is not in subPop")
 
 class Population:
-    def __init__(self, IndClass: Type[Individual], dim, nb_inds_tasks: List[int], list_tasks:List[AbstractTask] = [], 
+    def __init__(self, IndClass: Type[Individual], dim_uss, nb_inds_tasks: List[int], ls_tasks:List[AbstractTask] = [], 
         evaluate_initial_skillFactor = False) -> None:
         '''
         A Population include:\n
@@ -232,18 +232,18 @@ class Population:
             + if True: individuals are initialized with skill factor most fitness with them
             + else: randomize skill factors for individuals
         '''
-        assert len(nb_inds_tasks) == len(list_tasks)
+        assert len(nb_inds_tasks) == len(ls_tasks)
 
         # save params
-        self.ls_tasks = list_tasks
-        self.nb_tasks = len(list_tasks)
-        self.dim_uss = dim
+        self.ls_tasks = ls_tasks
+        self.nb_tasks = len(ls_tasks)
+        self.dim_uss = dim_uss
         self.IndClass = IndClass
 
         if evaluate_initial_skillFactor:
             # empty population
             self.ls_subPop: List[SubPopulation] = [
-                SubPopulation(IndClass, skf, self.dim_uss, 0, list_tasks[skf]) for skf in range(len(nb_inds_tasks))
+                SubPopulation(IndClass, skf, self.dim_uss, 0, ls_tasks[skf]) for skf in range(len(nb_inds_tasks))
             ]
 
             # list individual (don't have skill factor)
@@ -252,10 +252,10 @@ class Population:
                 for i in range(np.sum(nb_inds_tasks))
             ]
             # matrix factorial cost and matrix rank
-            matrix_cost = np.array([[ind.eval(t) for ind in ls_inds] for t in list_tasks]).T
+            matrix_cost = np.array([[ind.eval(t) for ind in ls_inds] for t in ls_tasks]).T
             matrix_rank_pop = np.argsort(np.argsort(matrix_cost, axis = 0), axis = 0) 
 
-            count_inds = np.zeros((len(list_tasks),))
+            count_inds = np.zeros((len(ls_tasks),))
             
             while not np.all(count_inds == nb_inds_tasks) :
                 # random task do not have enough individual
@@ -273,11 +273,11 @@ class Population:
                 matrix_rank_pop[idx_ind] = len(ls_inds) + 1
                 count_inds[idx_task] += 1
 
-            for i in range(len(list_tasks)):
+            for i in range(len(ls_tasks)):
                 self.ls_subPop[i].update_rank()
         else:
             self.ls_subPop: List[SubPopulation] = [
-                SubPopulation(IndClass, skf, self.dim_uss, nb_inds_tasks[skf], list_tasks[skf]) for skf in range(self.nb_tasks)
+                SubPopulation(IndClass, skf, self.dim_uss, nb_inds_tasks[skf], ls_tasks[skf]) for skf in range(self.nb_tasks)
             ]
 
     def __len__(self):
@@ -353,9 +353,9 @@ class Population:
         assert self.nb_tasks == other.nb_tasks
         newPop = Population(
             IndClass= self.IndClass,
-            dim = self.dim_uss,
+            dim_uss = self.dim_uss,
             nb_inds_tasks= [0] * self.nb_tasks,
-            list_tasks= self.ls_tasks
+            ls_tasks= self.ls_tasks
         )
         newPop.ls_subPop = [
             self.ls_subPop[idx] + other.ls_subPop[idx]

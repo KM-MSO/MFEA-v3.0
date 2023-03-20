@@ -91,8 +91,8 @@ class model():
         test_pop = Population(
             self.IndClass,
             nb_inds_tasks = [10] * len(self.tasks), 
-            dim = self.dim_uss,
-            list_tasks= self.tasks,
+            dim_uss = self.dim_uss,
+            ls_tasks= self.tasks,
             evaluate_initial_skillFactor = True
         )
 

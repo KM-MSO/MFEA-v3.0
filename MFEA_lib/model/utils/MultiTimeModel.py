@@ -23,8 +23,11 @@ def get_model_name(model: AbstractModel.model):
 class MultiTimeModel:
     def __init__(self, model: AbstractModel = None, list_attri_avg: list = None,  name=None) -> None:
         if model is not None:
-            self.model = model.model
-
+            if type(model).__name__ == 'module':
+                self.model = model.model 
+            elif type(model).__name__ == 'type': 
+                self.model = model 
+        
             if name is None and model is not None:
                 self.name = model.__name__
             else:

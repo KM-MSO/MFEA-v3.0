@@ -111,8 +111,8 @@ class model(AbstractModel.model):
         population = Population(
             self.IndClass,
             nb_inds_tasks= current_inds_each_task, 
-            dim = self.dim_uss, 
-            list_tasks= self.tasks, 
+            dim_uss = self.dim_uss, 
+            ls_tasks= self.tasks, 
             evaluate_initial_skillFactor= evaluate_initial_skillFactor
         )
 
@@ -128,8 +128,8 @@ class model(AbstractModel.model):
             offsprings = Population(
                 self.IndClass,
                 nb_inds_tasks= [0] * len(self.tasks),
-                dim = self.dim_uss, 
-                list_tasks= self.tasks,
+                dim_uss = self.dim_uss, 
+                ls_tasks= self.tasks,
             )
             list_generate_rmp = np.empty((len(self.tasks), len(self.tasks), 0)).tolist()
             # create new offspring population 
