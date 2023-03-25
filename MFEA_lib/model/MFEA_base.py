@@ -50,7 +50,7 @@ class model(AbstractModel.model):
                     skf_oa, skf_ob = numba_randomchoice(np.array([pa.skill_factor, pb.skill_factor]), size= 2, replace= True)
                     oa, ob = self.crossover(pa, pb, skf_oa, skf_ob)
                 else:
-                    # mutate
+                    # mutateaaa
                     oa = self.mutation(pa, return_newInd= True)
                     oa.skill_factor = pa.skill_factor
 

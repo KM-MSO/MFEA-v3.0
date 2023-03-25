@@ -18,6 +18,7 @@ class Individual:
         self.fcost: float = None
         self.genes: np.ndarray = genes
         self.parent: Individual = parent
+        self.dim = dim
 
     def eval(self, task: AbstractTask) -> None:
         '''
@@ -118,6 +119,25 @@ class SubPopulation:
         
     def __len__(self): 
         return len(self.ls_inds)
+    
+    #TODO: Check logic and optimize this function
+    def __setitem__(self, index, value):
+        try:
+            self.ls_inds[index] = value
+        except:
+            if type(index) == int:
+                self.ls_inds[index] = value
+            elif type(index) == list:
+                # print(len(self.ls_inds), len(value), len(index))
+                for i, x in enumerate(index):
+                    if x >= len(self):
+                        raise ValueError("Out of bound")
+                    
+                    self.ls_inds[x] = value[i]
+            elif type(index) == slice:
+                self.ls_inds[index] = value
+            else:
+                raise TypeError('Int, Slice or List[int], not ' + str(type(index)))
 
     def __getitem__(self, index):
         try:
@@ -129,7 +149,7 @@ class SubPopulation:
                 return [self.ls_inds[i] for i in index]
             else:
                 raise TypeError('Int, Slice or List[int], not ' + str(type(index)))
-    
+
     def __getRandomItems__(self, size:int = None, replace:bool = False):
         if size == 0:
             return []
@@ -283,7 +303,7 @@ class Population:
     def __len__(self):
         return sum([len(subPop) for subPop in self.ls_subPop])
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> SubPopulation: 
         return self.ls_subPop[index]
 
     def __getIndsTask__(self, idx_task, size: int = None, replace: bool = False, type:str = 'random', tournament_size= 2,  
