@@ -15,3 +15,23 @@ def numba_randomchoice_w_prob(a):
 @jit(nopython = True)
 def numba_randomchoice(a, size= None, replace= True):
     return np.random.choice(a, size= size, replace= replace)
+
+@jit(nopython = True)
+def numba_linalgo_det(matrix):
+    return np.linalg.det(matrix)
+
+@jit(nopython = True)
+def numba_linalgo_pinv(matrix):
+    return np.linalg.pinv(matrix)
+
+@jit(nopython = True)
+def numba_dot(a, b):
+    return np.dot(a, b)
+
+@jit(nopython = True)
+def numba_min(genes):
+    return np.min(genes)
+
+@jit(nopython = True)
+def numba_max(genes):
+    return np.max(genes)
